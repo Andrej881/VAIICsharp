@@ -1,0 +1,62 @@
+.formImage {
+    display: inline-block;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+    border: black solid 0.25rem;
+    background-color: lightgrey;
+    font-size: 20px;
+    filter: drop-shadow(0 0 0.25rem lightgrey);
+}
+
+.formImage:active {
+    background-color: lightslategray;
+}
+
+.hide {
+    display: none;
+}
+
+.size {
+    font-size: 1rem;
+}
+
+img{
+    background-color: grey !important;
+}
+
+.customForm {
+    background-color: lightgrey !important;
+    filter: drop-shadow(0 0 0.25rem black);
+    border: black solid 0.25rem;
+    padding: 0.5rem !important;
+}
+
+.customForm:focus {
+    border: none !important;
+    box-shadow: 0 0 0 0.2rem black !important;
+}
+
+#addTag{
+    background-color: rgba(128, 128, 128, 0.85);
+}
+#addTag:active{
+    background-color: white;
+}
+
+.uploadTags {
+    background-color: lightgrey;
+    border: lightgrey solid 0.5rem;
+    border-radius: 10px;
+    filter: drop-shadow(0 0 0.25rem black);
+}
+
+.gameUpload {
+    background-color: lightgrey;
+    color: black;
+    cursor: pointer;
+    filter: drop-shadow(0 0 0.25rem black);
+    font-size: 1.5rem;
+    overflow-wrap: break-word;
+    border-radius: 10px;
+}

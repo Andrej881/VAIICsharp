@@ -1,0 +1,87 @@
+.navImage {
+    font-size: 2rem;
+}
+
+.navCustom {
+    background-image: linear-gradient(45deg, rgba(255, 69, 0, 0.75), rgba(220, 20, 60, 0.75));
+    margin-bottom: 0;
+    padding-bottom: 0;
+    filter: drop-shadow(0 0 5px black);
+    overflow: visible;
+    z-index: 10;
+}
+
+.dropdownCustom {
+    background-image: linear-gradient(45deg, rgba(255, 69, 0, 0.75), rgba(220, 20, 60, 0.75));
+}
+.dropdownCustomItem.current {
+    background-color: black !important;
+    color: white !important;
+}
+
+.dropdownCustomItem:hover{
+    background-color: lightslategray !important;
+}
+.dropdownCustomItem:active{
+    background-color: black !important;
+}
+.dropdownCustomItem:focus{
+    background-color: black !important;
+    color: white!important;
+}
+
+@media (min-width: 992px) {
+    .positionFix {
+        position: relative;
+        transform: translateX(45%);
+    }
+}
+
+.secondaryBackground, .primaryBackground {
+    margin-top: 0;
+    min-height: 100vh;
+    font-size: 2rem;
+    filter: drop-shadow(0 0 5px black);
+}
+
+@media (max-width: 768px) {
+    .secondaryBackground {
+        min-height: 0;
+    }
+}
+
+.secondaryBackground {
+    background-image: linear-gradient(45deg, rgba(255, 0, 0, 0.25), rgba(0, 128, 0, 0.25));
+}
+
+.primaryBackground {
+    background-color: grey;
+    background-image: linear-gradient(45deg, grey, lightslategray);
+}
+
+.tag {
+    background-color: darkred;
+    color: white;
+    border: 0.25rem solid orangered;
+    border-radius: 10px;
+    min-height: 40px;
+    font-size: 1.5rem;
+    padding: 5px;
+    margin: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    text-shadow:
+        -1px -1px 0 black,
+        1px -1px 0 black,
+        -1px 1px 0 black,
+        1px 1px 0 black;
+}
+.tag:hover{
+    background-color: firebrick;
+}
+.tag:active{
+    background-color: crimson;
+}
+.titleSize {
+    font-size: calc(1rem + 1vw);
+}
