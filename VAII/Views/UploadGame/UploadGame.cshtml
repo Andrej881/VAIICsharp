@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Upload Game";
+}
+
+@section styles {
+    <!-- Additional CSS for this view -->
+    <link href="~/css/UploadGameStyle.css" rel="stylesheet" />
+}
+
+@model VAII.Models.DTO.GameViewModel
+
+<div class="row">
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+
+    <div class="col-12 col-lg-8 primaryBackground">
+        <form asp-action="UploadGame" method="post" enctype="multipart/form-data">
+            <div class="row p-3 gx-3 gy-5">
+
+                <div class="col-md-6 col-12">
+                    <div class="col">
+                        <label for="titleInput" class="">Title</label>
+                        <input id="titleInput" class="form-control customForm" type="text" placeholder="Title" asp-for="Title">
+                    </div>
+                    <div class="col">
+                        Upload Image
+                        <div class="formImage">
+                            <label for="imageInput" class="w-100">
+                                <i class="bi-arrow-up-circle-fill"></i>
+                            </label>
+                        </div>
+                        <input class="hide" type="file" id="imageInput" accept="image/*" asp-for="ImagePath">
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12 align-content-end">
+                    <img id="imagePreview" class="size ratio img-thumbnail" src="" alt="">
+                </div>
+
+                <div class="col-12">
+                    <label for="description" class="">Description</label>
+                    <textarea class="form-control customForm" placeholder="Description" id="description" rows="10" asp-for="Description"></textarea>
+                </div>
+
+                <div class="col-12 uploadTags">
+                    <div class="ms-1 col-4 pb-3 ">
+                        <button id="addTag" class="formImage">ADD TAG</button>
+                    </div>
+                    <div class="row d-flex gap-3 gx-0">
+                        <div class="col-auto">
+                            <button class="tag">2D Game</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="tag">Platformer</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="tag">Single Player</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="tag">FPS</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label for="fileInput" class="col-12" >UploadGame</label>
+                </div>
+
+                <div class="row p-2 gap-3 gx-1">
+                    <div class="col-auto">
+                        <input class="gameUpload input-group" type="file" id="fileInput" >
+                    </div>
+
+                    <div class="col-auto align-content-end ms-auto">
+                        <button type="submit" class="formImage d-flex align-self-center ms-auto">
+                            Confirm
+                            <i class="bi-check-circle-fill"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+</div>
+
+@section Scripts {
+    <script src="~/js/showImage.js"></script>
+}

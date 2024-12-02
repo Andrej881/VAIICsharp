@@ -1,3 +1,78 @@
 ﻿@using VAII
 @using VAII.Models
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="row">
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+
+    <div class="col-12 col-lg-8 primaryBackground">
+        <div class="row p-3 gx-3 gy-5">
+
+            <div class="col-md-6 col-12">
+                <div class="col">
+                    <label for="titleInput" class="">Title</label>
+                    <input id="titleInput" class="form-control customForm" type="text" placeholder="Title">
+                </div>
+                <div class="col">
+                    Upload Image
+                    <div class="formImage">
+                        <label for="imageInput" class="w-100">
+                            <i class="bi-arrow-up-circle-fill"></i>
+                        </label>
+                    </div>
+                    <input class="hide" type="file" id="imageInput" accept="image/*">
+                </div>
+            </div>
+
+            <div class="col-md-6 col-12 align-content-end">
+                <img class="size ratio img-thumbnail" src="images/SpaceDestroyer.PNG" alt="">
+            </div>
+
+            <div class="col-12">
+                <label for="description" class="">Description</label>
+                <textarea class="form-control customForm" placeholder="Description" id="description" rows="10"></textarea>
+            </div>
+
+            <div class="col-12 uploadTags">
+                <div class="ms-1 col-4 pb-3 ">
+                    <button id="addTag" class="formImage">ADD TAG</button>
+                </div>
+                <div class="row d-flex gap-3 gx-0">
+                    <div class="col-auto">
+                        <button class="tag">2D Game</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="tag">Platformer</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="tag">Single Player</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="tag">FPS</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label for="fileInput" class="col-12">UploadGame</label>
+            </div>
+
+            <div class="row p-2 gap-3 gx-1">
+                <div class="col-auto">
+                    <input class="gameUpload input-group" type="file" id="fileInput">
+                </div>
+
+                <div class="col-auto align-content-end ms-auto">
+                    <button class="formImage d-flex align-self-center ms-auto">
+                        Confirm
+                        <i class="bi-check-circle-fill"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+</div>
