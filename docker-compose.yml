@@ -1,0 +1,31 @@
+networks:
+  vaiiapp:    
+
+services:
+  vaiiDb:
+    container_name: vaii_db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+       - 8002:1433
+    environment:
+       - ACCEPT_EULA=Y 
+       - MSSQL_SA_PASSWORD=password12345#
+    networks:
+       - vaiiapp
+  vaii:
+    container_name: vaii_app
+    image: ${DOCKER_REGISTRY-}vaii
+    build:
+      context: .
+      dockerfile: VAII/Dockerfile
+    ports:
+       - 8001:80
+    depends_on:
+        - vaiiDb
+    environment:
+        - DB_HOST=vaiiDb
+        - DB_PORT=1433
+        - DB_NAME=VaiiAPP
+        - DB_SA_PASSWORD=password12345#
+    networks:
+       - vaiiapp
