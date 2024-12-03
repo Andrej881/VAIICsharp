@@ -1,21 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
+using VAII.Data;
 using VAII.Models;
+using VAII.Models.DTO;
+using VAII.Models.Entities;
 
 namespace VAII.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext dbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext dbContext)
         {
+            this.dbContext = dbContext;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var games = dbContext.Games.ToList();
+
+            return View(games);
         }
 
         public IActionResult Privacy()

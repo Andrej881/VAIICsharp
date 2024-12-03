@@ -1,0 +1,109 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Game Description";
+}
+
+@model VAII.Models.Entities.Game
+
+@section styles {
+    <!-- Additional CSS for this view -->
+    <link href="~/css/gameInfoStyle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+
+    <div class="col-12 col-lg-8 primaryBackground">
+        <div class="row p-3 gx-3 gy-3 justify-content-between">
+
+            <div class="col-md-6 col-12">
+                <img src="@Model.ImagePath" class="img-thumbnail ratio" alt="@Model.Title">
+            </div>
+            <div class="col-md-6 col-12 d-flex flex-column justify-content-around">
+                <div>
+                    <div class="col-12 mb-3 d-flex justify-content-center text-light gameName">
+                        @Model.Title
+                    </div>
+                </div>
+                <div class="col-12 align-self-end">
+                    <button class="text-dark text-decoration-none d-flex justify-content-center gameInfo w-100">
+                        Download
+                        <i class="bi bi-arrow-down-circle-fill titleSize ms-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-12 text-dark gameInfo">
+                <p>Description:</p>
+                <p>
+                    @Model.Description
+                </p>
+
+            </div>
+
+            <div class="col-12 text-dark">
+                <p>TAGS:</p>
+                <div class="row d-flex gap-2">
+                    <div class="col-auto">
+                        <button class="tag">2D Game</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="tag">Single Player</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="tag">Puzzle</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 text-dark">
+                <a href="#" class="text-dark text-decoration-none">
+                    <p>Reviews:</p>
+                </a>
+                <div class="row gy-3">
+                    <div class="col-12 text-dark gameInfo gap-3">
+                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
+                            <span>
+                                <img src="images/User.png" alt="" class="userImage">
+                                USER1
+                            </span>
+                            <span>3/5</span>
+                        </div>
+                        <div class="col-auto">
+                            Frist Review fffffffff fffffffffffffff fffffffffff ffffffffff ffffffff ffffff fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+                        </div>
+                    </div>
+                    <div class="col-12 text-dark gameInfo gap-3">
+                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
+                            <span>
+                                <img src="images/User.png" alt="" class="userImage">
+                                USER2
+                            </span>
+                            <span>1/5</span>
+                        </div>
+                        <div class="col-auto">
+                            Second Review
+                        </div>
+                    </div>
+                    <div class="col-12 text-dark gameInfo gap-3">
+                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
+                            <span>
+                                <img src="images/In%20Darkness.png" alt="" class="userImage">
+                                Encias
+                            </span>
+                            <span>5/5</span>
+                        </div>
+                        <div class="col-auto">
+                            good game
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+</div>

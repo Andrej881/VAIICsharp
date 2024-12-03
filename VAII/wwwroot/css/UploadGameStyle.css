@@ -37,11 +37,21 @@ img{
     box-shadow: 0 0 0 0.2rem black !important;
 }
 
-#addTag{
+#addTag, #confirmAddTag {
     background-color: rgba(128, 128, 128, 0.85);
 }
-#addTag:active{
-    background-color: white;
+#addTag:active, #confirmAddTag:active {
+        background-color: white;
+}
+#closeModal {
+    background-color: lightcoral;
+}
+#closeModal:active {
+    background-color: lightpink;
+}
+#addTagModal {
+    display: none;
+    padding: 10px;
 }
 
 .uploadTags {

@@ -3,6 +3,8 @@ using VAII.Models.DTO;
 using VAII.Data;
 using VAII.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Azure;
 
 namespace VAII.Controllers
 {
@@ -20,10 +22,10 @@ namespace VAII.Controllers
         {
             // Fetch all tags from the database
             var tags = dbContext.Tags.ToList();
-
             var viewModel = new GameViewModel
             {
-                AvailableTags = tags
+                AvailableTags = tags.IsNullOrEmpty() ? tags : new List<Tag>(),
+                SelectedTags = new List<string>(),
             };
 
             return View(viewModel);
@@ -31,13 +33,15 @@ namespace VAII.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadGame(GameViewModel model)
         {
-            if (model.ImagePath != null && model.ImagePath.Length > 0 && model.FilePath != null && model.FilePath.Length > 0)
+            bool pathsTest = model.ImagePath != null && model.ImagePath.Length > 0 && model.FilePath != null && model.FilePath.Length > 0;
+            bool modelTest = model.Title != String.Empty;
+            if (modelTest && pathsTest)
             {
                 var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
                 var imagePath = Path.Combine(uploads, model.ImagePath.FileName);
 
                 var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "games");
-                var filePath = Path.Combine(uploads, model.FilePath.FileName);
+                var filePath = Path.Combine(uploadsFile, model.FilePath.FileName);
 
                 // Ensure the directory exists
                 if (!Directory.Exists(uploads))
@@ -59,7 +63,7 @@ namespace VAII.Controllers
                     await model.ImagePath.CopyToAsync(fileStream);
                 }
 
-                var Game = new Game
+                var game = new Game
                 {
                     Title = model.Title,
                     Description = model.Description,
@@ -68,16 +72,58 @@ namespace VAII.Controllers
                     UploadDate = DateTime.Now
                 };
 
-                foreach (int tagID in model.SelectedTagIds)
-                { 
-                    
-                }
+                if (model.SelectedTags is not null)
+                {
+                    foreach (string tagName in model.SelectedTags)
+                    {
+                        var tag = await dbContext.Tags
+                                .FirstOrDefaultAsync(t => t.TagName.Equals(tagName, StringComparison.OrdinalIgnoreCase));
 
-                await dbContext.Games.AddAsync(Game);
+                        if (tag == null)
+                        {
+                            tag = new Tag
+                            {
+                                TagName = tagName,
+                                UseCount = 1
+                            };
+                            dbContext.Tags.Add(tag);
+                        }
+                        else
+                        {
+                            tag.UseCount += 1;
+
+                            dbContext.Tags.Update(tag);
+                        }
+                        var gameTag = new GameTag
+                        {
+                            GameID = game.GameID,
+                            TagID = tag.TagID
+                        };
+
+                        dbContext.GameTags.Add(gameTag);
+                    }
+                }                              
+
+                await dbContext.Games.AddAsync(game);
                 await dbContext.SaveChangesAsync();
             }           
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult GameDescription(int id)
+        {
+            var game = dbContext.Games
+                           .Include(g => g.GameTags) 
+                           .FirstOrDefault(g => g.GameID == id);
+
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            return View(game);
         }
     }
 }
