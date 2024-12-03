@@ -50,7 +50,7 @@
 
                 @foreach (var game in Model)
                 {
-                    <div class="col-lg-4 col-12 col-md-6">
+                    <div class="col-lg-4 col-12 col-md-6" id="gameItem-@game.GameID">
                         <a href="@Url.Action("GameDescription", "Game", new { id = game.GameID })">
                             <img src="@game.ImagePath" class="img-thumbnail ratio" alt="@game.Title">
                         </a>
@@ -58,9 +58,10 @@
                             <a href="@Url.Action("GameDescription", "Game", new { id = game.GameID })" class="text-dark text-decoration-none titleSize">
                                 @game.Title
                             </a>
-                            <a href="#" class="text-dark text-decoration-none">
+                            <a href="@Url.Action("DownloadGame", "Game", new { id = game.GameID })" class="text-dark text-decoration-none" download>
                                 <i class="bi bi-arrow-down-circle-fill titleSize"></i>
                             </a>
+                            <button class="deleteGameBtn bi bi-trash btn btn-danger" data-id="@game.GameID">Delete</button>
                         </div>
                     </div>
                 }               
@@ -69,3 +70,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/deleteGame.js"></script>
+}

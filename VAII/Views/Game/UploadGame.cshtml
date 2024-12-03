@@ -19,7 +19,7 @@
                 <div class="col-md-6 col-12">
                     <div class="col">
                         <label for="titleInput" class="">Title</label>
-                        <input id="titleInput" class="form-control customForm" type="text" placeholder="Title" asp-for="Title">
+                        <input id="titleInput" class="form-control customForm" type="text" placeholder="Title" asp-for="Title" required>
                     </div>
                     <div class="col">
                         Upload Image
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="col-12">
-                    <label for="description" class="">Description</label>
+                    <label for="description">Description</label>
                     <textarea class="form-control customForm" placeholder="Description" id="description" rows="10" asp-for="Description"></textarea>
                 </div>
 
@@ -71,12 +71,12 @@
 
 
                 <div class="col-12">
-                    <label for="fileInput" class="col-12" >UploadGame</label>
+                    <label for="fileInput" class="col-12">UploadGame</label>
                 </div>
 
                 <div class="row p-2 gap-3 gx-1">
                     <div class="col-auto">
-                        <input class="gameUpload input-group" type="file" id="fileInput" asp-for="FilePath" >
+                        <input class="gameUpload input-group" type="file" id="fileInput" asp-for="FilePath" required>
                     </div>
 
                     <div class="col-auto align-content-end ms-auto">

@@ -17,14 +17,7 @@ namespace VAII.Controllers
         {
             this.dbContext = dbContext;
             _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            var games = dbContext.Games.ToList();
-
-            return View(games);
-        }
+        }        
 
         public IActionResult Privacy()
         {

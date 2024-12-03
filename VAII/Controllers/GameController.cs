@@ -11,10 +11,19 @@ namespace VAII.Controllers
     public class GameController : Controller
     {
         private readonly ApplicationDbContext dbContext;
+        private readonly IWebHostEnvironment environment;
 
-        public GameController(ApplicationDbContext dbContext)
-        { 
+        public GameController(ApplicationDbContext dbContext, IWebHostEnvironment environment)
+        {
             this.dbContext = dbContext;
+            this.environment = environment;
+        }
+
+        public IActionResult Index()
+        {
+            var games = dbContext.Games.ToList();
+
+            return View(games);
         }
 
         [HttpGet]
@@ -33,14 +42,25 @@ namespace VAII.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadGame(GameViewModel model)
         {
-            bool pathsTest = model.ImagePath != null && model.ImagePath.Length > 0 && model.FilePath != null && model.FilePath.Length > 0;
+            bool imagePathTest = model.ImagePath != null && model.ImagePath.Length > 0;
+            bool fileTest = model.FilePath != null && model.FilePath.Length > 0;
             bool modelTest = model.Title != String.Empty;
-            if (modelTest && pathsTest)
+            if (modelTest && fileTest)
             {
-                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-                var imagePath = Path.Combine(uploads, model.ImagePath.FileName);
+                string uploads, imagePath;
+                if (imagePathTest)
+                {
+                    uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", model.Title);
+                    imagePath = Path.Combine(uploads, model.ImagePath.FileName);
+                }
+                else
+                {
+                    uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    imagePath = Path.Combine(uploads, "nothing.png");
+                }
+                
 
-                var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "games");
+                var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "games", model.Title);
                 var filePath = Path.Combine(uploadsFile, model.FilePath.FileName);
 
                 // Ensure the directory exists
@@ -54,21 +74,24 @@ namespace VAII.Controllers
                 }
 
                 // Save the uploaded file to the server
-                using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                if (imagePathTest)
                 {
-                    await model.ImagePath.CopyToAsync(fileStream);
-                }
+                    using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await model.ImagePath.CopyToAsync(fileStream);
+                    }
+                }                
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await model.ImagePath.CopyToAsync(fileStream);
+                    await model.FilePath.CopyToAsync(fileStream);
                 }
 
                 var game = new Game
                 {
                     Title = model.Title,
-                    Description = model.Description,
-                    ImagePath = "/images/" + model.ImagePath.FileName,
-                    FilePath = "/games/" + model.FilePath.FileName,
+                    Description = model.Description is null ? "" : model.Description,
+                    ImagePath = imagePathTest ? $"/images/{model.Title}/{model.ImagePath.FileName}" : "/images/nothing.png",
+                    FilePath = $"/games/{model.Title}/{model.FilePath.FileName}",
                     UploadDate = DateTime.Now
                 };
 
@@ -108,7 +131,7 @@ namespace VAII.Controllers
                 await dbContext.SaveChangesAsync();
             }           
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -124,6 +147,54 @@ namespace VAII.Controllers
             }
 
             return View(game);
+        }
+
+        public async Task<IActionResult> DownloadGame(int id)
+        {
+            
+            var game = await dbContext.Games.FindAsync(id);
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            var filePath = Path.Combine(environment.WebRootPath, game.FilePath.TrimStart('/'));
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            return PhysicalFile(filePath, "application/octet-stream", Path.GetFileName(filePath));
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteGame(int id)
+        {
+            Game game = await dbContext.Games.FindAsync(id);
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            var imagePath = Path.Combine(environment.WebRootPath, game.ImagePath.TrimStart('/'));
+            var filePath = Path.Combine(environment.WebRootPath, game.FilePath.TrimStart('/'));
+
+            // Delete the image file if it exists
+            if (System.IO.File.Exists(imagePath) && game.ImagePath != "/images/nothing.png")
+            {
+                System.IO.File.Delete(imagePath);
+            }
+
+            // Delete the game file if it exists
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            dbContext.Games.Remove(game);
+            await dbContext.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
     }
 }
