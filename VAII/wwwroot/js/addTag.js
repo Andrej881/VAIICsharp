@@ -12,13 +12,10 @@ document.getElementById("confirmAddTag").addEventListener("click", function () {
     var newTag = document.getElementById("newTagInput").value;
 
     if (newTag) {
-        // Pridať nový tag do zoznamu
         addNewTag(newTag);
 
-        // Zavrieť modálne okno
         document.getElementById("addTagModal").style.display = "none";
-
-        // Vyčistiť input po pridaní
+                
         document.getElementById("newTagInput").value = "";
     }
 });
