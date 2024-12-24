@@ -51,6 +51,7 @@
                             <div class="col-auto">
                                 <button type="button" class="tag">@tag</button>
                             </div>
+                            <input type="hidden" name="SelectedTags[@Model.SelectedTags.IndexOf(tag)]" value="@tag" />
                         }
                     </div>
                 </div>

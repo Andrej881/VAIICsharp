@@ -24,6 +24,12 @@ function addNewTag(tagName) {
     // Pridaj tag do zoznamu NewTags na stránke
     var selectedTagsContainer = document.getElementById("selectedTagsContainer");
 
+    var existingTags = Array.from(document.querySelectorAll("input[name^='SelectedTags']")).map(input => input.value);
+    if (existingTags.includes(tagName)) {
+        alert("Tag already added!");
+        return;
+    }
+
     var newTagButton = document.createElement("button");
     newTagButton.classList.add("tag");
     newTagButton.textContent = tagName;
@@ -32,13 +38,12 @@ function addNewTag(tagName) {
     var newTagDiv = document.createElement("div");
     newTagDiv.classList.add("col-auto");
     newTagDiv.appendChild(newTagButton);
-
     selectedTagsContainer.appendChild(newTagDiv);
 
     // Pridaj tag do hidden poľa pre submit formu
     var inputTag = document.createElement("input");
     inputTag.type = "hidden";
-    inputTag.name = "NewTags";
+    inputTag.name = `SelectedTags[${existingTags.length}]`;
     inputTag.value = tagName;
 
     document.querySelector("form").appendChild(inputTag);

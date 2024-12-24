@@ -95,12 +95,16 @@ namespace VAII.Controllers
                     UploadDate = DateTime.Now
                 };
 
+                await dbContext.Games.AddAsync(game);
+                await dbContext.SaveChangesAsync();
+
                 if (model.SelectedTags is not null)
                 {
-                    foreach (string tagName in model.SelectedTags)
+                    foreach (var tagName in model.SelectedTags)
                     {
                         var tag = await dbContext.Tags
-                                .FirstOrDefaultAsync(t => t.TagName.Equals(tagName, StringComparison.OrdinalIgnoreCase));
+                            .Where(t => t.TagName.ToLower() == tagName.ToLower())
+                            .FirstOrDefaultAsync();
 
                         if (tag == null)
                         {
@@ -117,6 +121,7 @@ namespace VAII.Controllers
 
                             dbContext.Tags.Update(tag);
                         }
+                        await dbContext.SaveChangesAsync();
                         var gameTag = new GameTag
                         {
                             GameID = game.GameID,
@@ -124,11 +129,10 @@ namespace VAII.Controllers
                         };
 
                         dbContext.GameTags.Add(gameTag);
+                        await dbContext.SaveChangesAsync();
                     }
                 }                              
 
-                await dbContext.Games.AddAsync(game);
-                await dbContext.SaveChangesAsync();
             }           
 
             return RedirectToAction("Index");
@@ -176,19 +180,23 @@ namespace VAII.Controllers
                 return NotFound();
             }
 
-            var imagePath = Path.Combine(environment.WebRootPath, game.ImagePath.TrimStart('/'));
-            var filePath = Path.Combine(environment.WebRootPath, game.FilePath.TrimStart('/'));
+            var gameTags = dbContext.GameTags.Where(gt => gt.GameID == id);            
+
+            RemoveGameTags(gameTags.ToList<GameTag>());
+
+            var imagePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.ImagePath.TrimStart('/')));
+            var filePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.FilePath.TrimStart('/')));
 
             // Delete the image file if it exists
-            if (System.IO.File.Exists(imagePath) && game.ImagePath != "/images/nothing.png")
+            if (Directory.Exists(imagePath) && game.ImagePath != "/images/nothing.png")
             {
-                System.IO.File.Delete(imagePath);
+                Directory.Delete(imagePath,true);
             }
 
             // Delete the game file if it exists
-            if (System.IO.File.Exists(filePath))
+            if (Directory.Exists(filePath))
             {
-                System.IO.File.Delete(filePath);
+                Directory.Delete(filePath,true);
             }
 
             dbContext.Games.Remove(game);
@@ -294,22 +302,17 @@ namespace VAII.Controllers
             game.FilePath = fileTest ? $"/games/{model.Title}/{model.FilePath.FileName}" : game.FilePath;
             game.UploadDate = DateTime.Now;
 
-            var impactedGameTags = game.GameTags.Select(gt => gt.Tag).ToList(); 
-            foreach (var tag in impactedGameTags)
-            {
-                tag.UseCount = Math.Max(0, tag.UseCount - 1); 
-            }
-
             await dbContext.SaveChangesAsync();
 
-            dbContext.GameTags.RemoveRange(game.GameTags);
+            RemoveGameTags(game.GameTags.ToList<GameTag>());            
 
             if (model.SelectedTags is not null)
             {
                 foreach (string tagName in model.SelectedTags)
                 {
                     var tag = await dbContext.Tags
-                            .FirstOrDefaultAsync(t => t.TagName.Equals(tagName, StringComparison.OrdinalIgnoreCase));
+                            .Where(t => t.TagName.ToLower() == tagName.ToLower())
+                            .FirstOrDefaultAsync();
 
                     if (tag == null)
                     {
@@ -326,6 +329,7 @@ namespace VAII.Controllers
 
                         dbContext.Tags.Update(tag);
                     }
+                    await dbContext.SaveChangesAsync();
                     var gameTag = new GameTag
                     {
                         GameID = game.GameID,
@@ -342,5 +346,28 @@ namespace VAII.Controllers
             return RedirectToAction("Index");
         }
 
+        private async void RemoveGameTags(List<GameTag>? gameTags)
+        {
+            var tagIds = gameTags.Select(gt => gt.TagID).ToList();
+            var tags = await dbContext.Tags.Where(t => tagIds.Contains(t.TagID)).ToListAsync();
+
+            foreach (var gameTag in gameTags)
+            {
+                Tag tag = tags.FirstOrDefault(t => t.TagID == gameTag.TagID);
+                if (tag != null)
+                {
+                    tag.UseCount--;
+                    if (tag.UseCount == 0)
+                    {
+                        dbContext.Tags.Remove(tag);
+                    }
+                    else
+                    {
+                        dbContext.Tags.Update(tag);
+                    }
+                }
+            }
+            dbContext.GameTags.RemoveRange(gameTags);
+        }
     }
 }
