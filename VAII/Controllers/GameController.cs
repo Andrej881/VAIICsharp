@@ -142,15 +142,28 @@ namespace VAII.Controllers
         public IActionResult GameDescription(int id)
         {
             var game = dbContext.Games
-                           .Include(g => g.GameTags) 
-                           .FirstOrDefault(g => g.GameID == id);
+                                .Include(g => g.GameTags)
+                                .ThenInclude(gt => gt.Tag)
+                                .FirstOrDefault(g => g.GameID == id);
 
             if (game == null)
             {
                 return NotFound();
             }
 
-            return View(game);
+            
+
+            EditGameViewModel gameView = new()
+            {
+                Id = id,
+                Title = game.Title,
+                Description = game.Description,
+                ExistingImagePath = game.ImagePath,
+                ExistingFilePath = game.FilePath,
+                SelectedTags = game.GameTags.Select(gt => gt.Tag.TagName).ToList() is null ? new List<string>() : game.GameTags.Select(gt => gt.Tag.TagName).ToList()
+            };
+
+            return View(gameView);
         }
 
         public async Task<IActionResult> DownloadGame(int id)
@@ -182,7 +195,7 @@ namespace VAII.Controllers
 
             var gameTags = dbContext.GameTags.Where(gt => gt.GameID == id);            
 
-            RemoveGameTags(gameTags.ToList<GameTag>());
+            await RemoveGameTags(gameTags.ToList());
 
             var imagePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.ImagePath.TrimStart('/')));
             var filePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.FilePath.TrimStart('/')));
@@ -229,8 +242,7 @@ namespace VAII.Controllers
                 AvailableTags = tags.IsNullOrEmpty() ? tags : new List<Tag>(),
                 SelectedTags = game.GameTags.Select(gt => gt.Tag.TagName).ToList() is null ? new List<string>() : game.GameTags.Select(gt => gt.Tag.TagName).ToList()
             };
-
-            ViewBag.IsEditMode = true; // To differentiate between edit and upload
+                        
             return View(viewModel);
         }
 
@@ -304,7 +316,7 @@ namespace VAII.Controllers
 
             await dbContext.SaveChangesAsync();
 
-            RemoveGameTags(game.GameTags.ToList<GameTag>());            
+            await RemoveGameTags(game.GameTags.ToList());            
 
             if (model.SelectedTags is not null)
             {
@@ -346,8 +358,10 @@ namespace VAII.Controllers
             return RedirectToAction("Index");
         }
 
-        private async void RemoveGameTags(List<GameTag>? gameTags)
+        private async Task RemoveGameTags(List<GameTag>? gameTags)
         {
+            if (gameTags == null) return;
+
             var tagIds = gameTags.Select(gt => gt.TagID).ToList();
             var tags = await dbContext.Tags.Where(t => tagIds.Contains(t.TagID)).ToListAsync();
 
@@ -368,6 +382,7 @@ namespace VAII.Controllers
                 }
             }
             dbContext.GameTags.RemoveRange(gameTags);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

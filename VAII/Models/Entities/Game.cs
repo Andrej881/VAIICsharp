@@ -3,6 +3,7 @@
     public class Game
     {
         public int GameID { get; set; } // Primary Key
+        public int UserID { get; set; }
         public string Title { get; set; } 
         public string Description { get; set; }
         public string ImagePath { get; set; } 

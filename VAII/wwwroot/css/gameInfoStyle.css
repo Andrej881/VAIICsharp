@@ -18,10 +18,10 @@
     filter: drop-shadow(0 0 0.25rem lightgrey);
 }
 
-button.gameInfo:hover{
+a.gameInfo:hover{
     background-color: whitesmoke;
 }
-button.gameInfo:active{
+a.gameInfo:active{
     background-color: slategray;
 }
 

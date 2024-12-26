@@ -5,7 +5,7 @@
     ViewData["Title"] = "Game Description";
 }
 
-@model VAII.Models.Entities.Game
+@model VAII.Models.DTO.EditGameViewModel
 
 @section styles {
     <!-- Additional CSS for this view -->
@@ -19,7 +19,7 @@
         <div class="row p-3 gx-3 gy-3 justify-content-between">
 
             <div class="col-md-6 col-12">
-                <img src="@Model.ImagePath" class="img-thumbnail ratio" alt="@Model.Title">
+                <img src="@Model.ExistingImagePath" class="img-thumbnail ratio" alt="@Model.Title">
             </div>
             <div class="col-md-6 col-12 d-flex flex-column justify-content-around">
                 <div>
@@ -28,10 +28,10 @@
                     </div>
                 </div>
                 <div class="col-12 align-self-end">
-                    <button class="text-dark text-decoration-none d-flex justify-content-center gameInfo w-100">
+                    <a href="@Url.Action("DownloadGame", "Game", new { id = Model.Id })" class="text-dark text-decoration-none d-flex justify-content-center gameInfo w-100" download>
                         Download
                         <i class="bi bi-arrow-down-circle-fill titleSize ms-3"></i>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -46,15 +46,12 @@
             <div class="col-12 text-dark">
                 <p>TAGS:</p>
                 <div class="row d-flex gap-2">
-                    <div class="col-auto">
-                        <button class="tag">2D Game</button>
-                    </div>
-                    <div class="col-auto">
-                        <button class="tag">Single Player</button>
-                    </div>
-                    <div class="col-auto">
-                        <button class="tag">Puzzle</button>
-                    </div>
+                    @foreach (var tag in Model.SelectedTags)
+                    {
+                        <div class="col-auto">
+                            <button type="button" class="tag">@tag</button>
+                        </div>
+                    }
                 </div>
             </div>
 
