@@ -5,7 +5,6 @@
         var tagName = tagButton.textContent;
 
         tagButton.parentElement.remove();
-
         var hiddenInput = document.querySelector(`input[name^='SelectedTags'][value='${tagName}']`);
         if (hiddenInput) {
             hiddenInput.remove();
@@ -20,7 +19,6 @@ function updateHiddenInputs() {
     index = 0
     hiddenInputs.forEach((input) => {
         input.name = `SelectedTags[${index}]`; 
-        alert(`${input.name} ${index}`)
         index++;
     });
 }

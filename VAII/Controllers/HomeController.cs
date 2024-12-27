@@ -18,18 +18,41 @@ namespace VAII.Controllers
         {
             this.dbContext = dbContext;
             _logger = logger;
-        }
-
-        public IActionResult Index()
+        }        
+        
+        public IActionResult Index(string search, GamesPlusTagsViewModel sendModel)
         {
-            var games = dbContext.Games.ToList();
+            var gamesQuery = dbContext.Games.AsQueryable();
+            if (!string.IsNullOrEmpty(search))
+            {
+                gamesQuery = gamesQuery.Where(game => game.Title.ToLower().Contains(search.ToLower()));
+            }
+            if (sendModel.SelectedTags is not null)
+            {
+                gamesQuery = gamesQuery.Where(game => sendModel.SelectedTags.All(selectedTag => game.GameTags.Any(gameTag => gameTag.Tag.TagName == selectedTag)));
+            }
             var tags = dbContext.Tags.ToList();
+            var games = gamesQuery.ToList();
+
+            var selected = new List<string>();
+            foreach (var tag in tags)
+            { 
+                selected.Add(tag.TagName);
+            }
 
             var model = new GamesPlusTagsViewModel()
             {
                 Games = games,
-                Tags = tags
+                Tags = tags,
+                Search = search,
+                //SelectedTags = sendModel.SelectedTags is not null ? sendModel.SelectedTags : new List<Tag>()
+                SelectedTags = sendModel.SelectedTags is not null ? sendModel.SelectedTags : selected
             };
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_GamesList", model);
+            }
 
             return View(model);
         }

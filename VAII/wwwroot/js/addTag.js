@@ -10,7 +10,6 @@ document.getElementById("closeModal").addEventListener("click", function () {
 
 document.getElementById("confirmAddTag").addEventListener("click", function () {
     var newTag = document.getElementById("newTagInput").value;
-
     if (newTag) {
         addNewTag(newTag);
 
@@ -47,5 +46,4 @@ function addNewTag(tagName) {
     inputTag.value = tagName;
 
     form.appendChild(inputTag);
-    console.log(form);
 }

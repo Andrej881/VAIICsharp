@@ -223,6 +223,10 @@ namespace VAII.Controllers
         [HttpGet]
         public IActionResult EditGame(int id)
         {
+            if (userManager.GetUserId(User) is null)
+            {
+                return Redirect("/Identity/Account/Login");
+            }
             var game = dbContext.Games
                                 .Include(g => g.GameTags)
                                 .ThenInclude(gt => gt.Tag)
@@ -232,7 +236,10 @@ namespace VAII.Controllers
             {
                 return NotFound();
             }
-
+            if (userManager.GetUserId(User) != game.UserID)
+            {
+                return Redirect("/");
+            }
             var tags = dbContext.Tags.ToList();
 
             var viewModel = new EditGameViewModel
