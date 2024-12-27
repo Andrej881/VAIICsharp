@@ -12,6 +12,8 @@ services:
        - MSSQL_SA_PASSWORD=password12345#
     networks:
        - vaiiapp
+    volumes:
+      - vaii_db_data:/var/opt/mssql
   vaii:
     container_name: vaii_app
     image: ${DOCKER_REGISTRY-}vaii
@@ -29,3 +31,6 @@ services:
         - DB_SA_PASSWORD=password12345#
     networks:
        - vaiiapp
+ 
+volumes:
+  vaii_db_data: 

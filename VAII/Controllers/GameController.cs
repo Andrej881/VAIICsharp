@@ -13,9 +13,9 @@ namespace VAII.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IWebHostEnvironment environment;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<CustomUser> userManager;
 
-        public GameController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<IdentityUser> userManager)
+        public GameController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<CustomUser> userManager)
         {
             this.dbContext = dbContext;
             this.environment = environment;
@@ -196,7 +196,7 @@ namespace VAII.Controllers
             }
             if (userManager.GetUserId(User) != game.UserID)
             {
-                return Redirect("/");
+                return Forbid();
             }
 
             var gameTags = dbContext.GameTags.Where(gt => gt.GameID == id);            
@@ -242,6 +242,7 @@ namespace VAII.Controllers
             }
             if (userManager.GetUserId(User) != game.UserID)
             {
+                TempData["ErrorMessage"] = "You dont have permission to access this game.";
                 return Redirect("/");
             }
             var tags = dbContext.Tags.ToList();
