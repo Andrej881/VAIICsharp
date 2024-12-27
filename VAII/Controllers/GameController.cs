@@ -194,6 +194,10 @@ namespace VAII.Controllers
             {
                 return NotFound();
             }
+            if (userManager.GetUserId(User) != game.UserID)
+            {
+                return Redirect("/");
+            }
 
             var gameTags = dbContext.GameTags.Where(gt => gt.GameID == id);            
 
@@ -364,7 +368,7 @@ namespace VAII.Controllers
             dbContext.Games.Update(game);
             await dbContext.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Library", "Home");
         }
 
         private async Task RemoveGameTags(List<GameTag>? gameTags)

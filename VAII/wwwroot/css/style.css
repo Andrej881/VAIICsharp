@@ -103,3 +103,10 @@
 .customButton:active {
     background-color: gray;
 }
+
+.invisibleButton {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+}
