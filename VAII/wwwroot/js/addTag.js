@@ -39,12 +39,13 @@ function addNewTag(tagName) {
     newTagDiv.classList.add("col-auto");
     newTagDiv.appendChild(newTagButton);
     selectedTagsContainer.appendChild(newTagDiv);
-
     // Pridaj tag do hidden poľa pre submit formu
+    const form = document.getElementById("myForm");
     var inputTag = document.createElement("input");
     inputTag.type = "hidden";
     inputTag.name = `SelectedTags[${existingTags.length}]`;
     inputTag.value = tagName;
 
-    document.querySelector("form").appendChild(inputTag);
+    form.appendChild(inputTag);
+    console.log(form);
 }

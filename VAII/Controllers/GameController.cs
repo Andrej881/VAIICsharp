@@ -5,6 +5,7 @@ using VAII.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Azure;
+using Microsoft.AspNetCore.Identity;
 
 namespace VAII.Controllers
 {
@@ -12,24 +13,22 @@ namespace VAII.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IWebHostEnvironment environment;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public GameController(ApplicationDbContext dbContext, IWebHostEnvironment environment)
+        public GameController(ApplicationDbContext dbContext, IWebHostEnvironment environment, UserManager<IdentityUser> userManager)
         {
             this.dbContext = dbContext;
             this.environment = environment;
-        }
-
-        public IActionResult Index()
-        {
-            var games = dbContext.Games.ToList();
-
-            return View(games);
-        }
+            this.userManager = userManager;
+        }        
 
         [HttpGet]
         public IActionResult UploadGame()
         {
-            // Fetch all tags from the database
+            if (userManager.GetUserId(User) is null)
+            {
+                return Redirect("/Identity/Account/Login"); 
+            }
             var tags = dbContext.Tags.ToList();
             var viewModel = new GameViewModel
             {
@@ -45,7 +44,8 @@ namespace VAII.Controllers
             bool imagePathTest = model.ImagePath != null && model.ImagePath.Length > 0;
             bool fileTest = model.FilePath != null && model.FilePath.Length > 0;
             bool modelTest = model.Title != String.Empty;
-            if (modelTest && fileTest)
+            var userId = userManager.GetUserId(User);
+            if (modelTest && fileTest && userId is not null)
             {
                 string uploads, imagePath;
                 if (imagePathTest)
@@ -88,12 +88,14 @@ namespace VAII.Controllers
 
                 var game = new Game
                 {
+                    UserID = userId, 
                     Title = model.Title,
                     Description = model.Description is null ? "" : model.Description,
                     ImagePath = imagePathTest ? $"/images/{model.Title}/{model.ImagePath.FileName}" : "/images/nothing.png",
                     FilePath = $"/games/{model.Title}/{model.FilePath.FileName}",
                     UploadDate = DateTime.Now
                 };
+                
 
                 await dbContext.Games.AddAsync(game);
                 await dbContext.SaveChangesAsync();
@@ -135,7 +137,7 @@ namespace VAII.Controllers
 
             }           
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index","Home");
         }
 
         [HttpGet]
@@ -355,7 +357,7 @@ namespace VAII.Controllers
             dbContext.Games.Update(game);
             await dbContext.SaveChangesAsync();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task RemoveGameTags(List<GameTag>? gameTags)

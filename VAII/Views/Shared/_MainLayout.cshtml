@@ -12,7 +12,7 @@
 <body>
     <nav class="navbar navbar-expand-lg justify-content-between navCustom">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Game" asp-action="Index">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 <i class="bi bi-controller navImage"></i>
             </a>           
 
@@ -24,18 +24,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Game" asp-action="Index">Home</a>
+                        <a class="nav-link @(Context.Request.Path == "/" ? "active" : "")" aria-current="page" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Library</a>
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("/Home/Library") ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Library">Library</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             User
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdownCustom" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item dropdownCustomItem" href="#">User settings</a>
-                            <a class="dropdown-item dropdownCustomItem" asp-area="" asp-controller="Game" asp-action="UploadGame">Upload Game</a>
+                            <a class="@(Context.Request.Path.Value.Contains("/Game/UploadGame") ? "active" : "") dropdownCustomItem" asp-area="" asp-controller="Game" asp-action="UploadGame">Upload Game</a>
                             <div class="dropdown-divider"></div>
                             <partial name="_LoginPartial" />
                             <!--<a class="dropdown-item dropdownCustomItem" href="#">Log out</a>-->

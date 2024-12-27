@@ -14,20 +14,22 @@
 .dropdownCustom {
     background-image: linear-gradient(45deg, rgba(255, 69, 0, 0.75), rgba(220, 20, 60, 0.75));
 }
-.dropdownCustomItem.current {
-    background-color: black !important;
-    color: white !important;
+.dropdownCustomItem.active {
+    background-color: black;
+    color: white;
 }
-
 .dropdownCustomItem:hover{
-    background-color: lightslategray !important;
+    background-color: lightslategray;
 }
-.dropdownCustomItem:active{
-    background-color: black !important;
+.dropdownCustomItem:active, dropdownCustomItem:focus{
+    background-color: black;
+    color: white ;
 }
-.dropdownCustomItem:focus{
-    background-color: black !important;
-    color: white!important;
+.dropdownCustomItem {
+    color: black;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
 }
 
 @media (min-width: 992px) {
@@ -84,4 +86,20 @@
 }
 .titleSize {
     font-size: calc(1rem + 1vw);
+}
+
+.customButton {
+    background-color: lightgray;
+    color: black;
+    font-size: 1.5rem;
+    border: 0.3rem solid black;
+    border-radius: 10px;
+    padding: 5px;
+    margin: 0;
+}
+.customButton:hover {
+    background-color: darkgray;
+}
+.customButton:active {
+    background-color: gray;
 }

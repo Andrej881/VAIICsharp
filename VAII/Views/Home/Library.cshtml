@@ -1,46 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Library";
 }
 
 @model IEnumerable<VAII.Models.Entities.Game>
 
-@section SearchBar {
-    <form class="d-flex w-50 positionFix">
-        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
-        <button type="submit" class="btn btn-dark ms-2">Search</button>
-    </form>
-}
-
 <div class="row">
     <div class="col-12 col-md-4 col-lg-3 secondaryBackground">
-        <div class="row d-flex justify-content-start gap-1 gy-3 p-3">
-            <div class="col">TAGS</div>
-            <div class="col-12 d-flex">
-                <select class="col-6 form-control w-75" id="selectTag">
-                    <option>3D</option>
-                    <option>VR</option>
-                    <option>MultiPlayer</option>
-                </select>
-                <button class="col-3 btn btn-dark ms-2 w-25">Add</button>
-                <label for="selectTag"></label>
-            </div>
-
-            <div class="col-auto">
-                <button class="tag">Horror</button>
-            </div>
-            <div class="col-auto">
-                <button class="tag">Platformer</button>
-            </div>
-            <div class="col-auto">
-                <button class="tag">Sandbox</button>
-            </div>
-            <div class="col-auto">
-                <button class="tag">FPS</button>
-            </div>
-            <div class="col-auto">
-                <button class="tag">Co-op</button>
-            </div>
-        </div>
+        <a asp-area="" asp-controller="Game" asp-action="UploadGame">Upload Game</a>
     </div>
     <div class="col-12 col-md-8 col-lg-9 primaryBackground">
         <div class="row gap-3 p-4">
@@ -64,7 +30,7 @@
                             <button class="deleteGameBtn bi bi-trash btn btn-danger" data-id="@game.GameID">Delete</button>
                         </div>
                     </div>
-                }               
+                }
 
             </div>
         </div>
