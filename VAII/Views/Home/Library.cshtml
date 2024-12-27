@@ -5,10 +5,17 @@
 @model IEnumerable<VAII.Models.Entities.Game>
 
 <div class="row">
-    <div class="col-12 col-md-4 col-lg-3 secondaryBackground">
-        <a asp-area="" asp-controller="Game" asp-action="UploadGame">Upload Game</a>
+    <div class="col-12 col-md-2 secondaryBackground">
+        <div class="row d-flex justify-content-around p-3">
+            <div class="col-5 col-md-12 mb-3">
+                <a class="nav-link tag" asp-area="" asp-controller="Game" asp-action="UploadGame">Upload Game</a>
+            </div>
+            <div class="col-5 col-md-12">
+                <a class="nav-link tag" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name</a>
+            </div>
+        </div>  
     </div>
-    <div class="col-12 col-md-8 col-lg-9 primaryBackground">
+    <div class="col-12 col-md-8 primaryBackground">
         <div class="row gap-3 p-4">
             <div class="col-12">GAMES</div>
 
@@ -17,6 +24,10 @@
                 @foreach (var game in Model)
                 {
                     <div class="col-lg-4 col-12 col-md-6" id="gameItem-@game.GameID">
+                        <div class="d-flex justify-content-between align-items-center m-auto">
+                            <button class="deleteGameBtn bi bi-trash btn btn-danger" data-id="@game.GameID">Edit</button>
+                            <button class="deleteGameBtn bi bi-trash btn btn-danger" data-id="@game.GameID">Delete</button>
+                        </div>
                         <a href="@Url.Action("GameDescription", "Game", new { id = game.GameID })">
                             <img src="@game.ImagePath" class="img-thumbnail ratio" alt="@game.Title">
                         </a>
@@ -27,7 +38,6 @@
                             <a href="@Url.Action("DownloadGame", "Game", new { id = game.GameID })" class="text-dark text-decoration-none" download>
                                 <i class="bi bi-arrow-down-circle-fill titleSize"></i>
                             </a>
-                            <button class="deleteGameBtn bi bi-trash btn btn-danger" data-id="@game.GameID">Delete</button>
                         </div>
                     </div>
                 }
@@ -35,6 +45,7 @@
             </div>
         </div>
     </div>
+    <div class="col-2 d-none d-md-block secondaryBackground"></div>
 </div>
 
 @section Scripts {

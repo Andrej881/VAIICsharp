@@ -34,19 +34,13 @@ namespace VAII.Controllers
             var tags = dbContext.Tags.ToList();
             var games = gamesQuery.ToList();
 
-            var selected = new List<string>();
-            foreach (var tag in tags)
-            { 
-                selected.Add(tag.TagName);
-            }
-
             var model = new GamesPlusTagsViewModel()
             {
                 Games = games,
                 Tags = tags,
                 Search = search,
                 //SelectedTags = sendModel.SelectedTags is not null ? sendModel.SelectedTags : new List<Tag>()
-                SelectedTags = sendModel.SelectedTags is not null ? sendModel.SelectedTags : selected
+                SelectedTags = sendModel.SelectedTags is not null ? sendModel.SelectedTags : new List<string>()
             };
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
