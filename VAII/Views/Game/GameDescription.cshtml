@@ -67,7 +67,7 @@
                     
                     @foreach (Review review in Model.Reviews)
                     {
-                        <div class="col-12 text-dark gameInfo gap-3">                            
+                        <div class="col-12 text-dark gameInfo gap-3" id="reviewItem-@review.Id">
                             <div class="col-12 border border-3 border-black rounded-3 shadow p-2">                                
                                 <div class="col-12 d-flex justify-content-between">
                                     <span>
@@ -84,10 +84,10 @@
                                 {
                                     <div class="justify-content-end d-flex">
                                         <span class="px-3">
-                                            <i class="bi bi-pencil-square titleSize"></i>
+                                            <a href="@Url.Action("Reviews", "Review", new { gameID = Model.Id, reviewID = review.Id })" class="invisibleButton titleSize text-dark text-decoration-none bi bi-pencil-square"></a>
                                         </span>
                                         <span>
-                                            <i class="bi bi-trash titleSize"></i>
+                                            <button class="bi bi-trash invisibleButton titleSize deleteReviewBtn" data-id="@review.Id"></button>
                                         </span>
                                     </div>                                    
                                 }
@@ -105,3 +105,7 @@
 
     <div class="col-2 d-none d-lg-block secondaryBackground"></div>
 </div>
+
+@section Scripts {
+    <script src="~/js/deleteReview.js"></script>
+}
