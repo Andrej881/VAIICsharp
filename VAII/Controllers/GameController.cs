@@ -27,7 +27,8 @@ namespace VAII.Controllers
         {
             if (userManager.GetUserId(User) is null)
             {
-                return Redirect("/Identity/Account/Login"); 
+                var returnUrl = Request.Path.ToString();
+                return Redirect($"/Identity/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}"); 
             }
             var tags = dbContext.Tags.ToList();
             var viewModel = new GameViewModel
@@ -153,16 +154,21 @@ namespace VAII.Controllers
                 return NotFound();
             }
 
-            
+            List<Review> reviews = dbContext.Reviews
+                           .Include(r => r.User)
+                           .Where(r => r.GameID == id)
+                           .ToList();
 
-            EditGameViewModel gameView = new()
+            GameDescriptionViewModel gameView = new()
             {
                 Id = id,
+                CurrentUser = userManager.GetUserId(User),
                 Title = game.Title,
                 Description = game.Description,
                 ExistingImagePath = game.ImagePath,
                 ExistingFilePath = game.FilePath,
-                SelectedTags = game.GameTags.Select(gt => gt.Tag.TagName).ToList() is null ? new List<string>() : game.GameTags.Select(gt => gt.Tag.TagName).ToList()
+                SelectedTags = game.GameTags.Select(gt => gt.Tag.TagName).ToList() is null ? new List<string>() : game.GameTags.Select(gt => gt.Tag.TagName).ToList(),
+                Reviews = reviews is not null ? reviews : new List<Review>()
             };
 
             return View(gameView);
@@ -219,6 +225,14 @@ namespace VAII.Controllers
             }
 
             dbContext.Games.Remove(game);
+
+            List<Review> reviews = dbContext.Reviews
+                           .Where(r => r.GameID == id)
+                           .ToList();
+            foreach (var review in reviews)
+            { 
+                dbContext.Reviews.Remove(review);
+            }
             await dbContext.SaveChangesAsync();
 
             return Json(new { success = true });
@@ -229,7 +243,8 @@ namespace VAII.Controllers
         {
             if (userManager.GetUserId(User) is null)
             {
-                return Redirect("/Identity/Account/Login");
+                var returnUrl = Request.Path.ToString();
+                return Redirect($"/Identity/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}");
             }
             var game = dbContext.Games
                                 .Include(g => g.GameTags)

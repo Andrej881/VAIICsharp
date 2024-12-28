@@ -10,7 +10,7 @@ namespace VAII.Data
             : base(options)
         {
         }
-
+        public DbSet<Review> Reviews { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<GameTag> GameTags { get; set; }

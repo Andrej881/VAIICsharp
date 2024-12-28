@@ -1,11 +1,13 @@
-﻿@*
+﻿@using VAII.Models.DTO
+@using VAII.Models.Entities
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
     ViewData["Title"] = "Game Description";
 }
 
-@model VAII.Models.DTO.EditGameViewModel
+@model VAII.Models.DTO.GameDescriptionViewModel
 
 @section styles {
     <!-- Additional CSS for this view -->
@@ -49,7 +51,9 @@
                     @foreach (var tag in Model.SelectedTags)
                     {
                         <div class="col-auto">
-                            <button type="button" class="tag">@tag</button>
+                            <a href="@Url.Action("IndexTag", "Home", new {tag = tag})" class="tag text-decoration-none">
+                                @tag
+                            </a>
                         </div>
                     }
                 </div>
@@ -60,42 +64,39 @@
                     <p>Reviews:</p>
                 </a>
                 <div class="row gy-3">
-                    <div class="col-12 text-dark gameInfo gap-3">
-                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
-                            <span>
-                                <img src="images/User.png" alt="" class="userImage">
-                                USER1
-                            </span>
-                            <span>3/5</span>
+                    
+                    @foreach (Review review in Model.Reviews)
+                    {
+                        <div class="col-12 text-dark gameInfo gap-3">                            
+                            <div class="col-12 border border-3 border-black rounded-3 shadow p-2">                                
+                                <div class="col-12 d-flex justify-content-between">
+                                    <span>
+                                        <img src=@review.User.ImagePath alt="" class="userImage">
+                                        @review.User.UserName
+                                    </span>
+                                    <span>@review.Value/5</span>
+                                </div>
+                                
+                            </div>
+                            <div class="col-auto">
+                                @review.Content
+                                @if (review.UserID == Model.CurrentUser)
+                                {
+                                    <div class="justify-content-end d-flex">
+                                        <span class="px-3">
+                                            <i class="bi bi-pencil-square titleSize"></i>
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-trash titleSize"></i>
+                                        </span>
+                                    </div>                                    
+                                }
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            Frist Review fffffffff fffffffffffffff fffffffffff ffffffffff ffffffff ffffff fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-                        </div>
-                    </div>
-                    <div class="col-12 text-dark gameInfo gap-3">
-                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
-                            <span>
-                                <img src="images/User.png" alt="" class="userImage">
-                                USER2
-                            </span>
-                            <span>1/5</span>
-                        </div>
-                        <div class="col-auto">
-                            Second Review
-                        </div>
-                    </div>
-                    <div class="col-12 text-dark gameInfo gap-3">
-                        <div class="col-12 d-flex justify-content-between border border-3 border-black rounded-3 shadow p-2">
-                            <span>
-                                <img src="images/In%20Darkness.png" alt="" class="userImage">
-                                Encias
-                            </span>
-                            <span>5/5</span>
-                        </div>
-                        <div class="col-auto">
-                            good game
-                        </div>
-                    </div>
+                    }
+                    <a class="titleSize col-12 gap-3 text-dark gameInfo text-decoration-none" href="@Url.Action("Reviews", "Review", new { gameID = Model.Id })">
+                        ADD REVIEW
+                    </a>
                 </div>
             </div>
 

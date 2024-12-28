@@ -110,3 +110,9 @@
     outline: none;
     padding: 0;
 }
+
+#customUser {
+    background: none;
+    border: none;
+    outline: none;
+}

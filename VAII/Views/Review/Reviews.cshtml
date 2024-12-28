@@ -1,0 +1,51 @@
+﻿@using VAII.Models.Entities
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Reviews";
+}
+
+@model VAII.Models.Entities.Review
+
+@section styles {
+    <!-- Additional CSS for this view -->
+    <link href="~/css/UploadGameStyle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+
+    <div class="col-12 col-lg-8 primaryBackground">
+        <form id="myForm" asp-action="Reviews" method="post" enctype="multipart/form-data">            
+            <div class="row p-3 gx-3 gy-5">
+                <div class="col-12">
+                    <label for="content">Content</label>
+                    <textarea required class="form-control customForm" placeholder="Content" id="content" rows="10" asp-for="Content"></textarea>
+                </div> 
+                <div class="col-12">
+                    <label for="value">Rating</label>
+                    <select required class="form-control customForm" id="value" asp-for="Value">
+                        @for (int i = 1; i < 6; ++i)
+                        {
+                            <option>@i</option>                            
+                        }
+                    </select>
+                </div>         
+                <div class="col-auto align-content-end ms-auto">
+                    <button type="submit" class="formImage d-flex align-self-center ms-auto">
+                        Confirm
+                        <i class="bi-check-circle-fill"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="GameID"/>
+        </form>
+    </div>
+    <div class="col-2 d-none d-lg-block secondaryBackground"></div>
+</div>
+
+@section Scripts {
+    <script src="~/js/addReview.js"></script>
+}

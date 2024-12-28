@@ -18,8 +18,11 @@ namespace VAII.Controllers
         {
             this.dbContext = dbContext;
             _logger = logger;
-        }        
-        
+        }
+        public IActionResult IndexTag(string tag) {
+            GamesPlusTagsViewModel model = new() { SelectedTags = new List<string>() { tag } };
+            return RedirectToAction("Index", "Home", model);
+        }
         public IActionResult Index(string search, GamesPlusTagsViewModel sendModel)
         {
             var gamesQuery = dbContext.Games.AsQueryable();
@@ -56,7 +59,8 @@ namespace VAII.Controllers
 
             if (userId == null)
             {
-                return Redirect("/Identity/Account/Login");
+                var returnUrl = Request.Path.ToString();
+                return Redirect($"/Identity/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}");
             }
 
             var games = dbContext.Games.Where(game => game.UserID == userId).ToList();
