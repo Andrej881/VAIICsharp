@@ -32,7 +32,7 @@ namespace VAII.Controllers
                 return NotFound();
             }
             Review review = reviewID == 0 ? new Review() { GameID = gameID} : dbContext.Reviews.Find(reviewID);
-            if (userManager.GetUserId(User) != review.UserID)
+            if (userManager.GetUserId(User) != review.UserID && reviewID != 0)
             {
                 TempData["ErrorMessage"] = "You dont have permission to edit someonesElse review.";
                 return Forbid();
