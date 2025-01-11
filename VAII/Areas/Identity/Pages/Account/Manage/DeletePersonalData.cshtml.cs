@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VAII.Data;
 using VAII.Data.Migrations;
 using VAII.Models.Entities;
 
@@ -20,14 +23,21 @@ namespace VAII.Areas.Identity.Pages.Account.Manage
         private readonly SignInManager<CustomUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
 
+        private readonly IWebHostEnvironment environment;
+        private readonly ApplicationDbContext dbContext;
+
         public DeletePersonalDataModel(
             UserManager<CustomUser> userManager,
             SignInManager<CustomUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger,
+            ApplicationDbContext context,
+            IWebHostEnvironment env)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            dbContext = context;
+            environment = env;
         }
 
         /// <summary>
@@ -87,9 +97,16 @@ namespace VAII.Areas.Identity.Pages.Account.Manage
                     return Page();
                 }
             }
+            var imagePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(user.ImagePath.TrimStart('/')));
+            if (Directory.Exists(imagePath) && user.ImagePath != "/images/user.png")
+            {
+                Directory.Delete(imagePath, true);
+            }
+
+            var userId = await _userManager.GetUserIdAsync(user);
+            await DeleteRelatedData(userId);
 
             var result = await _userManager.DeleteAsync(user);
-            var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)
             {
                 throw new InvalidOperationException($"Unexpected error occurred deleting user.");
@@ -101,5 +118,67 @@ namespace VAII.Areas.Identity.Pages.Account.Manage
 
             return Redirect("~/");
         }
+
+        private async Task DeleteRelatedData(string userId)
+        {
+            var games = await dbContext.Games.Where(g => g.UserID == userId).ToListAsync();
+            dbContext.Games.RemoveRange(games);
+
+            foreach (Game game in games)
+            {
+                var gameTags = dbContext.GameTags.Where(gt => gt.GameID == game.GameID);
+
+                if (gameTags == null) return;
+
+                var tagIds = gameTags.Select(gt => gt.TagID).ToList();
+                var tags = await dbContext.Tags.Where(t => tagIds.Contains(t.TagID)).ToListAsync();
+
+                foreach (var gameTag in gameTags)
+                {
+                    Tag tag = tags.FirstOrDefault(t => t.TagID == gameTag.TagID);
+                    if (tag != null)
+                    {
+                        tag.UseCount--;
+                        if (tag.UseCount == 0)
+                        {
+                            dbContext.Tags.Remove(tag);
+                        }
+                        else
+                        {
+                            dbContext.Tags.Update(tag);
+                        }
+                    }
+                }
+                dbContext.GameTags.RemoveRange(gameTags);
+
+                var imagePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.ImagePath.TrimStart('/')));
+                var filePath = Path.Combine(environment.WebRootPath, Path.GetDirectoryName(game.FilePath.TrimStart('/')));
+
+                // Delete the image file if it exists
+                if (Directory.Exists(imagePath) && game.ImagePath != "/images/nothing.png")
+                {
+                    Directory.Delete(imagePath, true);
+                }
+
+                // Delete the game file if it exists
+                if (Directory.Exists(filePath))
+                {
+                    Directory.Delete(filePath, true);
+                }
+
+                dbContext.Games.Remove(game);
+
+                List<Review> reviews = dbContext.Reviews
+                               .Where(r => r.GameID == game.GameID)
+                               .ToList();
+                foreach (var review in reviews)
+                {
+                    dbContext.Reviews.Remove(review);
+                }
+            }           
+
+            await dbContext.SaveChangesAsync();
+        }
     }
+    
 }

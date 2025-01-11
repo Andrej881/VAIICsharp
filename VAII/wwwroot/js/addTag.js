@@ -1,5 +1,5 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("addTag").addEventListener("click", function () {
+﻿
+    document.getElementById("addTag").addEventListener("click", function () {
         // Zobraziť modálne okno
         centerModal();
         document.getElementById("addTagModal").style.display = "block";
@@ -60,4 +60,3 @@
 
         form.appendChild(inputTag);
     }
-});

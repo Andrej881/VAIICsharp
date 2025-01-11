@@ -1,24 +1,24 @@
 ﻿@{
+    //vygenerovane VS a mnou menene
     if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
     {
         Layout = parentLayout.ToString();
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        Layout = "/Views/Shared/_MainLayout.cshtml";
     }
 }
 
-<h1>Manage your account</h1>
-
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
+<div>    
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3 secondaryBackground">
+            <h1 class="text-white">Manage your account</h1>
+            <h2 class="text-white">Change your account settings</h2>
+            <hr />
             <partial name="_ManageNav" />
         </div>
-        <div class="col-md-9">
+        <div class="col-md-9 primaryBackground">
             @RenderBody()
         </div>
     </div>

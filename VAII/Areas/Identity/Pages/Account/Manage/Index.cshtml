@@ -5,20 +5,51 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
+<!--vygenerovane VS a mnou upravene(spojil som viac views s kontrolermi do kopi a pridal pridavanie profilovky)-->
 <partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
+<div class="row p-3">
     <div class="col-md-6">
-        <form id="profile-form" method="post">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            @if (Model.ProfilePicture != null)
+            {
+                <div class="form-group pb-3">
+                    <img src="@Model.ProfilePicture" alt="Profile Picture" class="img-thumbnail" style="max-width: 200px;" />
+                </div>
+            }
+            <!-- File Input for New Profile Picture -->            
             <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label asp-for="NewProfilePicture" class="form-label">Profile picture:</label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="NewProfilePicture" accept="image/*" type="file" class="hide form-control" placeholder="Please choose your profile picture" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label asp-for="Username" class="form-label">Username:</label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Username" class="form-control customForm" autocomplete="email" aria-required="true" placeholder="username" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label asp-for="Email" class="form-label">Email:</label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Email" class="form-control" autocomplete="email" aria-required="true" placeholder="Please enter email." />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger" ></span>
+                </div>
             </div>
             <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>

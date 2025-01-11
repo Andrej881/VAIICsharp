@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Azure;
 using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 namespace VAII.Controllers
 {
@@ -31,7 +32,7 @@ namespace VAII.Controllers
                 return Redirect($"/Identity/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}"); 
             }
             var tags = dbContext.Tags.ToList();
-            var viewModel = new GameViewModel
+            var viewModel = new EditGameViewModel
             {
                 AvailableTags = tags.IsNullOrEmpty() ? tags : new List<Tag>(),
                 SelectedTags = new List<string>(),
@@ -40,103 +41,142 @@ namespace VAII.Controllers
             return View(viewModel);
         }
         [HttpPost]
-        public async Task<IActionResult> UploadGame(GameViewModel model)
+        public async Task<IActionResult> UploadGame(EditGameViewModel model)
         {
+            if(model == null)
+            {
+                TempData["ErrorMessage"] = "Error in recieving model data : model is null.(probably sending more than 1GB of data)";
+                return RedirectToAction("Error", "Home");
+            }
+            model.SelectedTags = model.SelectedTags is null ? new () : model.SelectedTags;
+            if (model.AvailableTags is null)
+            {
+                var tags = dbContext.Tags.ToList();
+                model.AvailableTags = tags is null ? new() : tags;
+            }
+
             bool imagePathTest = model.ImagePath != null && model.ImagePath.Length > 0;
             bool fileTest = model.FilePath != null && model.FilePath.Length > 0;
-            bool modelTest = model.Title != String.Empty;
             var userId = userManager.GetUserId(User);
-            if (modelTest && fileTest && userId is not null)
+
+            if (model.Title == String.Empty)
             {
-                string uploads, imagePath;
-                if (imagePathTest)
-                {
-                    uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", model.Title);
-                    imagePath = Path.Combine(uploads, model.ImagePath.FileName);
-                }
-                else
-                {
-                    uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-                    imagePath = Path.Combine(uploads, "nothing.png");
-                }
                 
-
-                var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "games", model.Title);
-                var filePath = Path.Combine(uploadsFile, model.FilePath.FileName);
-
-                // Ensure the directory exists
-                if (!Directory.Exists(uploads))
+                TempData["ErrorMessage"] = "You need to write Title";
+                return View(model);
+            }
+            if (!fileTest)
+            {
+                TempData["ErrorMessage"] = "You need to upload file";
+                return View(model);
+            }
+            if (model.FilePath.Length > 300 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "File sze is more than 300 MB";
+                return View(model);
+            }
+            if (imagePathTest)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg", ".ico" };
+                var extension = Path.GetExtension(model.ImagePath.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
                 {
-                    Directory.CreateDirectory(uploads);
+                    TempData["ErrorMessage"] = "Only image files are allowed (JPG, JPEG, PNG, GIF, BMP, TIFF, WEBP, SVG, ICO).";
+                    return View(model);
                 }
-                if (!Directory.Exists(uploadsFile))
-                {
-                    Directory.CreateDirectory(uploadsFile);
-                }
+            }
+            var game = new Game
+            {
+                UserID = userId,
+                Title = model.Title,
+                Description = model.Description is null ? "" : model.Description,
+                ImagePath = "",
+                FilePath = $"/games/{model.Title}/{model.FilePath.FileName}",
+                UploadDate = DateTime.Now
+            };
 
-                // Save the uploaded file to the server
-                if (imagePathTest)
+
+            await dbContext.Games.AddAsync(game);
+            await dbContext.SaveChangesAsync();
+
+            game.ImagePath = imagePathTest ? $"/images/{game.GameID}/{model.ImagePath.FileName}" : "/images/nothing.png";
+
+            string uploads, imagePath;
+            if (imagePathTest)
+            {               
+
+                uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", $"{game.GameID}");
+                imagePath = Path.Combine(uploads, model.ImagePath.FileName);
+            }
+            else
+            {
+                uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                imagePath = Path.Combine(uploads, "nothing.png");
+            }
+
+            var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "games", $"{game.GameID}");
+            var filePath = Path.Combine(uploadsFile, model.FilePath.FileName);
+
+            // Ensure the directory exists
+            if (!Directory.Exists(uploads))
+            {
+                Directory.CreateDirectory(uploads);
+            }
+            if (!Directory.Exists(uploadsFile))
+            {
+                Directory.CreateDirectory(uploadsFile);
+            }
+
+            // Save the uploaded file to the server
+            if (imagePathTest)
+            {
+                using (var fileStream = new FileStream(imagePath, FileMode.Create))
                 {
-                    using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                    await model.ImagePath.CopyToAsync(fileStream);
+                }
+            }
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await model.FilePath.CopyToAsync(fileStream);
+            }
+
+            dbContext.Games.Update(game);
+            await dbContext.SaveChangesAsync();
+
+            if (model.SelectedTags is not null)
+            {
+                foreach (var tagName in model.SelectedTags)
+                {
+                    var tag = await dbContext.Tags
+                        .Where(t => t.TagName.ToLower() == tagName.ToLower())
+                        .FirstOrDefaultAsync();
+
+                    if (tag == null)
                     {
-                        await model.ImagePath.CopyToAsync(fileStream);
-                    }
-                }                
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.FilePath.CopyToAsync(fileStream);
-                }
-
-                var game = new Game
-                {
-                    UserID = userId, 
-                    Title = model.Title,
-                    Description = model.Description is null ? "" : model.Description,
-                    ImagePath = imagePathTest ? $"/images/{model.Title}/{model.ImagePath.FileName}" : "/images/nothing.png",
-                    FilePath = $"/games/{model.Title}/{model.FilePath.FileName}",
-                    UploadDate = DateTime.Now
-                };
-                
-
-                await dbContext.Games.AddAsync(game);
-                await dbContext.SaveChangesAsync();
-
-                if (model.SelectedTags is not null)
-                {
-                    foreach (var tagName in model.SelectedTags)
-                    {
-                        var tag = await dbContext.Tags
-                            .Where(t => t.TagName.ToLower() == tagName.ToLower())
-                            .FirstOrDefaultAsync();
-
-                        if (tag == null)
+                        tag = new Tag
                         {
-                            tag = new Tag
-                            {
-                                TagName = tagName,
-                                UseCount = 1
-                            };
-                            dbContext.Tags.Add(tag);
-                        }
-                        else
-                        {
-                            tag.UseCount += 1;
-
-                            dbContext.Tags.Update(tag);
-                        }
-                        await dbContext.SaveChangesAsync();
-                        var gameTag = new GameTag
-                        {
-                            GameID = game.GameID,
-                            TagID = tag.TagID
+                            TagName = tagName,
+                            UseCount = 1
                         };
-
-                        dbContext.GameTags.Add(gameTag);
-                        await dbContext.SaveChangesAsync();
+                        dbContext.Tags.Add(tag);
                     }
-                }                              
+                    else
+                    {
+                        tag.UseCount += 1;
 
-            }           
+                        dbContext.Tags.Update(tag);
+                    }
+                    await dbContext.SaveChangesAsync();
+                    var gameTag = new GameTag
+                    {
+                        GameID = game.GameID,
+                        TagID = tag.TagID
+                    };
+
+                    dbContext.GameTags.Add(gameTag);
+                    await dbContext.SaveChangesAsync();
+                }
+            }
 
             return RedirectToAction("Index","Home");
         }
@@ -255,6 +295,7 @@ namespace VAII.Controllers
             {
                 return NotFound();
             }
+
             if (userManager.GetUserId(User) != game.UserID)
             {
                 TempData["ErrorMessage"] = "You dont have permission to access this game.";
@@ -282,21 +323,52 @@ namespace VAII.Controllers
                                       .Include(g => g.GameTags)
                                       .FirstOrDefaultAsync(g => g.GameID == id);
 
+            if (model is null)
+            {
+                TempData["ErrorMessage"] = "Error in recieving model data : model is null. (probably sending more than 1GB of data)";
+                return RedirectToAction("Error", "Home");
+            }
             if (game == null)
             {
+                TempData["ErrorMessage"] = $"not game with id{id} found";
                 return NotFound();
             }
-
+            model.SelectedTags = model.SelectedTags is null ? new() : model.SelectedTags;
+            if (model.AvailableTags is null)
+            {
+                var tags = dbContext.Tags.ToList();
+                model.AvailableTags = tags is null ? new() : tags;
+            }
             if (String.IsNullOrEmpty(model.Title))
             {
                 return View(model);
             }
 
+            model.SelectedTags = model.SelectedTags is null ? new() : model.SelectedTags;
+            if (model.AvailableTags is null)
+            {
+                var tags = dbContext.Tags.ToList();
+                model.AvailableTags = tags is null ? new() : tags;
+            }
+
             bool imagePathTest = model.ImagePath != null && model.ImagePath.Length > 0;
             bool fileTest = model.FilePath != null && model.FilePath.Length > 0;
-
+            if (model.Title == String.Empty)
+            {
+                TempData["ErrorMessage"] = "You need to write Title";
+                return View(model);
+            }
+            
             if (imagePathTest)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg", ".ico" };
+                var extension = Path.GetExtension(model.ImagePath.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                {
+                    TempData["ErrorMessage"] = "Only image files are allowed (JPG, JPEG, PNG, GIF, BMP, TIFF, WEBP, SVG, ICO).";
+                    return View(model);
+                }
+
                 var imagePath = Path.Combine(environment.WebRootPath, game.ImagePath.TrimStart('/'));
                 if (System.IO.File.Exists(imagePath) && game.ImagePath != "/images/nothing.png")
                 {
@@ -318,6 +390,11 @@ namespace VAII.Controllers
             }
             if (fileTest)
             {
+                if (model.FilePath.Length > 300 * 1024 * 1024)
+                {
+                    TempData["ErrorMessage"] = "File sze is more than 300 MB";
+                    return View(model);
+                }
                 var filePath = Path.Combine(environment.WebRootPath, game.FilePath.TrimStart('/'));
                 if (System.IO.File.Exists(filePath))
                 {
@@ -339,8 +416,8 @@ namespace VAII.Controllers
 
             game.Title = model.Title;
             game.Description = model.Description is null ? "" : model.Description;
-            game.ImagePath = imagePathTest ? $"/images/{model.Title}/{model.ImagePath.FileName}" : game.ImagePath;
-            game.FilePath = fileTest ? $"/games/{model.Title}/{model.FilePath.FileName}" : game.FilePath;
+            game.ImagePath = imagePathTest ? $"/images/{game.GameID}/{model.ImagePath.FileName}" : game.ImagePath;
+            game.FilePath = fileTest ? $"/games/{game.GameID}/{model.FilePath.FileName}" : game.FilePath;
             game.UploadDate = DateTime.Now;
 
             await dbContext.SaveChangesAsync();

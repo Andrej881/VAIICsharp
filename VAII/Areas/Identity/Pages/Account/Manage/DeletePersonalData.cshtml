@@ -5,23 +5,25 @@
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
-
-<div class="alert alert-warning" role="alert">
-    <p>
+<!--vygenerovane VS a mnou upraveny view a controler(hlavne usek odstranovania aby som zmazal aj hry a reviews uzivatela)-->
+<div role="alert" class="p-3">
+    <p class="alert alert-danger">
         <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
     </p>
-</div>
-
-<div>
     <form id="delete-user" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
         @if (Model.RequirePassword)
         {
             <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
-                <label asp-for="Input.Password" class="form-label"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label asp-for="Input.Password" class="form-label">Password:</label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
             </div>
         }
         <button class="w-100 btn btn-lg btn-danger" type="submit">Delete data and close my account</button>
